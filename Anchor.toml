@@ -1,0 +1,20 @@
+[workspace]
+members = ["programs/gamechain"]
+
+[programs.localnet]
+gamechain = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[programs.devnet]
+gamechain = "BGXKsQccysQGXqUhkhQeTNbMaitepHaXFXdfp5hy45iL"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "anchor test"
+
+[toolchain]
+anchor_version = "0.32.1"
+solana_version = "3.1.13"
+package_manager = "npm"
