@@ -401,17 +401,19 @@ export function setSessionCookie(res: Response, token: string, expiresAt: string
     Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
   );
   const secure = env.secureCookies ? "; Secure" : "";
+  const sameSite = env.secureCookies ? "None" : "Lax";
   res.setHeader(
     "Set-Cookie",
-    `${env.sessionCookieName}=${encodeURIComponent(token)}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+    `${env.sessionCookieName}=${encodeURIComponent(token)}; HttpOnly; Path=/; SameSite=${sameSite}; Max-Age=${maxAge}${secure}`
   );
 }
 
 export function clearSessionCookie(res: Response) {
   const secure = env.secureCookies ? "; Secure" : "";
+  const sameSite = env.secureCookies ? "None" : "Lax";
   res.setHeader(
     "Set-Cookie",
-    `${env.sessionCookieName}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0${secure}`
+    `${env.sessionCookieName}=; HttpOnly; Path=/; SameSite=${sameSite}; Max-Age=0${secure}`
   );
 }
 

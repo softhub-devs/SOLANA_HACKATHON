@@ -1,20 +1,47 @@
-import { cookies } from "next/headers";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { Building2, ShieldCheck } from "lucide-react";
-import { readBackendSessionFromCookie } from "@/lib/serverAuth";
+import { apiFetch } from "@/lib/api";
+import type { SessionResponse } from "@/lib/apiTypes";
 
-type Props = {
-  params: Promise<{
-    orgId: string;
-  }>;
-};
+export default function OrganizationPage() {
+  const params = useParams<{ orgId: string }>();
+  const orgId = params.orgId;
+  const [organizerName, setOrganizerName] = useState<string | null>(null);
+  const [organizerWallet, setOrganizerWallet] = useState<string | null>(null);
 
-export default async function OrganizationPage({ params }: Props) {
-  const { orgId } = await params;
-  const cookieStore = await cookies();
-  const session = await readBackendSessionFromCookie(cookieStore.toString());
-  const organizerName =
-    session?.user.displayName ?? session?.user.username ?? session?.user.orgId ?? orgId;
-  const organizerWallet = session?.user.walletAddress ?? "";
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadSession() {
+      try {
+        const session = await apiFetch<SessionResponse>("/auth/session");
+        if (!mounted) {
+          return;
+        }
+
+        setOrganizerName(
+          session.user.displayName ?? session.user.username ?? session.user.orgId ?? orgId
+        );
+        setOrganizerWallet(session.user.walletAddress ?? null);
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setOrganizerName(orgId);
+        setOrganizerWallet(null);
+      }
+    }
+
+    void loadSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [orgId]);
 
   return (
     <div className="space-y-8">
@@ -31,7 +58,7 @@ export default async function OrganizationPage({ params }: Props) {
                   Organizer Profile
                 </p>
                 <h1 className="mt-2 text-3xl font-semibold text-white">
-                  {organizerName}
+                  {organizerName ?? "Loading organizer..."}
                 </h1>
                 {organizerWallet ? (
                   <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
