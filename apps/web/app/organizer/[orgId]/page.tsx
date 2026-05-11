@@ -51,11 +51,9 @@ export default async function OrganizationPage({ params }: Props) {
                 <h1 className="mt-2 text-3xl font-semibold text-white">
                   {organizerName}
                 </h1>
-                {organizerWallet ? (
                   <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
                     {organizerWallet}
                   </p>
-                ) : null}
                 <p className="mt-3 text-sm leading-6 text-slate-300">
                   Manage tournaments, verify players, and issue trusted credentials
                   from one organizer workspace.
