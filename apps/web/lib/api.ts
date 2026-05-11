@@ -2,11 +2,20 @@ import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 const API_BASE_URL = getApiBaseUrl();
 
+function getRequestUrl(path: string) {
+  // Keep browser requests same-origin so auth cookies continue to flow in prod.
+  if (typeof window !== "undefined") {
+    return path;
+  }
+
+  return `${API_BASE_URL}${path}`;
+}
+
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(getRequestUrl(path), {
     ...init,
     credentials: "include",
     headers: {

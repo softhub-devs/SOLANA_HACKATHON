@@ -264,7 +264,7 @@ function buildCredentialMetadataUri(
   wallet: string,
   options?: { baseUrl?: string; tournamentId?: string }
 ) {
-  const normalizedBaseUrl = options?.baseUrl?.trim() || "http://localhost";
+  const normalizedBaseUrl = options?.baseUrl?.trim() || "http://gamechain.local";
   const url = new URL(buildProofUri(wallet), normalizedBaseUrl);
 
   if (options?.tournamentId) {
@@ -283,7 +283,7 @@ function buildBadgeActionPath(
   }
 ) {
   const path = `/api/actions/badges/${encodeURIComponent(wallet)}`;
-  const url = new URL(path, options?.baseUrl ?? "http://localhost");
+  const url = new URL(path, options?.baseUrl ?? "http://gamechain.local");
 
   if (options?.tournamentId) {
     url.searchParams.set("tournamentId", options.tournamentId);
