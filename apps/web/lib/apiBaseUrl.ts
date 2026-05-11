@@ -4,9 +4,5 @@ function normalizeBaseUrl(value?: string) {
 }
 
 export function getApiBaseUrl() {
-  return (
-    normalizeBaseUrl(process.env.API_BASE_URL) ??
-    normalizeBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL) ??
-    "http://localhost:4000"
-  );
+  return normalizeBaseUrl(process.env.API_BASE_URL);
 }
