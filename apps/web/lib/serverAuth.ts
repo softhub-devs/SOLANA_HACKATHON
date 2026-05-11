@@ -3,6 +3,7 @@ import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 export type BackendSessionUser = {
   id: string;
+  orgId: string;
   walletAddress: string;
   username: string | null;
   displayName: string | null;

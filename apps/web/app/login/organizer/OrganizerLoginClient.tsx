@@ -10,6 +10,7 @@ import type {
   SessionResponse,
   SessionUser,
 } from "@/lib/apiTypes";
+import { persistOrganizerOrgId } from "@/lib/organizerStorage";
 
 type OrganizerRegistrationResponse = SessionResponse & {
   application: OrganizerApplication;
@@ -51,7 +52,8 @@ export function OrganizerLoginClient() {
       setDisplayName(payload.user.displayName ?? "");
 
       if (canManageTournaments(payload.user)) {
-        router.replace("/organizers/demo");
+        persistOrganizerOrgId(payload.user.orgId);
+        router.replace(`/organizer/${payload.user.orgId}`);
       }
     } catch {
       setSessionUser(null);
@@ -79,7 +81,8 @@ export function OrganizerLoginClient() {
       setSessionUser(payload.user);
 
       if (canManageTournaments(payload.user)) {
-        router.push("/organizers/demo");
+        persistOrganizerOrgId(payload.user.orgId);
+        router.push(`/organizer/${payload.user.orgId}`);
         return;
       }
 
@@ -122,26 +125,13 @@ export function OrganizerLoginClient() {
       );
 
       if (canManageTournaments(payload.user)) {
-        router.push("/organizers/demo");
+        persistOrganizerOrgId(payload.user.orgId);
+        router.push(`/organizer/${payload.user.orgId}/tournament`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Organizer signup failed.");
     } finally {
       setApplicationSaving(false);
-    }
-  }
-
-  async function handleLogout() {
-    setError(null);
-    setSuccess(null);
-
-    try {
-      await apiFetch<void>("/auth/logout", { method: "POST" });
-      setSessionUser(null);
-      setApplication(null);
-      setLoginPassword("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Logout failed.");
     }
   }
 
@@ -209,12 +199,11 @@ export function OrganizerLoginClient() {
                 <p>Logged in as: {sessionUser.username}</p>
                 <p>Role: {sessionUser.role}</p>
                 <p>Status: {sessionUser.organizerStatus}</p>
-                <button
-                  onClick={handleLogout}
-                  className="mt-4 rounded-xl bg-white/10 px-4 py-3"
-                >
-                  Logout
-                </button>
+                {canManageTournaments(sessionUser) ? (
+                  <p className="mt-4 text-sm text-slate-300">
+                    Redirecting to the organizer dashboard.
+                  </p>
+                ) : null}
               </div>
             )}
 

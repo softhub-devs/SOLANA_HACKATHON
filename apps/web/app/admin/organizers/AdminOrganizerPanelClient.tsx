@@ -106,22 +106,11 @@ export function AdminOrganizerPanelClient() {
 
     try {
       await apiFetch<void>("/auth/logout", { method: "POST" });
-      router.push("/login/admin");
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Logout failed.");
     }
   }
-
-  if (sessionLoading) {
-    return (
-      <main className="relative min-h-screen overflow-hidden bg-[#040612] px-6 py-10 text-white">
-        <div className="mx-auto max-w-6xl rounded-[28px] border border-white/10 bg-slate-950/50 p-6 text-sm text-slate-300 backdrop-blur">
-          Checking admin session...
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#040612] text-white">
       <Image
@@ -150,23 +139,12 @@ export function AdminOrganizerPanelClient() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {sessionUser ? (
-              <span className="inline-flex rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-slate-200 backdrop-blur">
-                {sessionUser.displayName ?? formatWallet(sessionUser.walletAddress)}
-              </span>
-            ) : null}
-            <Link
-              href="/"
-              className="inline-flex rounded-full border border-cyan-300/20 bg-slate-950/55 px-5 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-slate-900/70"
-            >
-              Back home
-            </Link>
             <button
               type="button"
               onClick={handleLogout}
               className="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
             >
-              End session
+              Logout
             </button>
           </div>
         </header>
@@ -211,7 +189,7 @@ export function AdminOrganizerPanelClient() {
               {applications.map((application) => (
                 <article
                   key={application.id}
-                  className="rounded-[24px] border border-white/10 bg-black/20 p-5"
+                  className="rounded-3xl border border-white/10 bg-black/20 p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
@@ -219,9 +197,6 @@ export function AdminOrganizerPanelClient() {
                         <h3 className="text-xl font-semibold text-white">
                           {application.displayName ?? application.username ?? "Unnamed user"}
                         </h3>
-                        <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-slate-200">
-                          {application.status}
-                        </span>
                         <span className="rounded-full border border-cyan-300/15 px-3 py-1 text-xs font-semibold text-cyan-100">
                           {application.organizerStatus}
                         </span>
@@ -250,22 +225,30 @@ export function AdminOrganizerPanelClient() {
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleReview(application.id, "approve")}
-                      disabled={actionLoadingId === application.id}
-                      className="inline-flex rounded-full bg-[linear-gradient(90deg,#8b5cf6_0%,#38bdf8_100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(56,189,248,0.28)] transition hover:scale-[1.02] disabled:opacity-50"
-                    >
-                      {actionLoadingId === application.id ? "Working..." : "Approve"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleReview(application.id, "reject")}
-                      disabled={actionLoadingId === application.id}
-                      className="inline-flex rounded-full border border-rose-400/30 bg-rose-400/10 px-5 py-3 text-sm font-semibold text-rose-100 transition hover:bg-rose-400/15 disabled:opacity-50"
-                    >
-                      {actionLoadingId === application.id ? "Working..." : "Reject"}
-                    </button>
+                    {application.status === "pending" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleReview(application.id, "approve")}
+                          disabled={actionLoadingId === application.id}
+                          className="inline-flex rounded-full bg-[linear-gradient(90deg,#8b5cf6_0%,#38bdf8_100%)] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(56,189,248,0.28)] transition hover:scale-[1.02] disabled:opacity-50"
+                        >
+                          {actionLoadingId === application.id ? "Working..." : "Approve"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleReview(application.id, "reject")}
+                          disabled={actionLoadingId === application.id}
+                          className="inline-flex rounded-full border border-rose-400/30 bg-rose-400/10 px-5 py-3 text-sm font-semibold text-rose-100 transition hover:bg-rose-400/15 disabled:opacity-50"
+                        >
+                          {actionLoadingId === application.id ? "Working..." : "Reject"}
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-sm text-slate-300">
+                        This organizer application has already been reviewed.
+                      </p>
+                    )}
                   </div>
                 </article>
               ))}

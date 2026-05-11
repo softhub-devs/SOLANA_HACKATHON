@@ -49,25 +49,13 @@ export function AdminLoginClient() {
       }
 
       setSessionUser(payload.user);
-      setSuccess("Admin session verified. Redirecting to the review panel.");
-      router.push("/admin/organizers");
+      setSuccess("Admin session verified. Redirecting to the admin panel.");
+      router.push("/admin");
     } catch (err) {
       setSessionUser(null);
       setError(err instanceof Error ? err.message : "Admin sign-in failed.");
     } finally {
       setAuthLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    setError(null);
-    setSuccess(null);
-
-    try {
-      await apiFetch<void>("/auth/logout", { method: "POST" });
-      setSessionUser(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Logout failed.");
     }
   }
 
@@ -155,13 +143,9 @@ export function AdminLoginClient() {
                 <p className="mt-2 text-lg font-semibold text-white">
                   {sessionUser.displayName ?? sessionUser.username}
                 </p>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="mt-4 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
-                >
-                  End session
-                </button>
+                <p className="mt-2 text-sm text-slate-300">
+                  Signed in as `{sessionUser.role}`. Redirecting to the admin panel.
+                </p>
               </div>
             )}
           </div>

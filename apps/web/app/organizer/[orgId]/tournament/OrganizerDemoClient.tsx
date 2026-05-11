@@ -152,8 +152,10 @@ function pageButtonClassName(active: boolean, locked: boolean) {
 
 export function OrganizerDemoClient({
   initialWallet,
+  initialPage = "tournament",
 }: {
   initialWallet: string;
+  initialPage?: DemoPage;
 }) {
   const router = useRouter();
 
@@ -166,7 +168,7 @@ export function OrganizerDemoClient({
   const [eligibility, setEligibility] = useState<EligibilityPayload | null>(null);
   const [createForm, setCreateForm] = useState(DEFAULT_CREATE_FORM);
   const [winnerWallet, setWinnerWallet] = useState("");
-  const [currentPage, setCurrentPage] = useState<DemoPage>("tournament");
+  const [currentPage, setCurrentPage] = useState<DemoPage>(initialPage);
   const [createLoading, setCreateLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
@@ -222,19 +224,27 @@ export function OrganizerDemoClient({
         throw new Error(payload.error ?? "Failed to load tournaments.");
       }
 
-      setTournaments(payload.tournaments);
+      const filteredTournaments =
+        sessionUser?.role === "admin"
+          ? payload.tournaments
+          : payload.tournaments.filter(
+              (tournament) =>
+                tournament.organizerWallet === sessionUser?.walletAddress
+            );
+
+      setTournaments(filteredTournaments);
 
       if (preferredTournamentId) {
         setSelectedTournamentId(preferredTournamentId);
-      } else if (!selectedTournamentId && payload.tournaments[0]) {
-        setSelectedTournamentId(payload.tournaments[0].id);
+      } else if (!selectedTournamentId && filteredTournaments[0]) {
+        setSelectedTournamentId(filteredTournaments[0].id);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load tournaments.");
     } finally {
       setLoadingTournaments(false);
     }
-  }, [selectedTournamentId]);
+  }, [selectedTournamentId, sessionUser]);
 
   const loadTournament = useCallback(async (tournamentId: string) => {
     let lastError: Error | null = null;
@@ -286,8 +296,12 @@ export function OrganizerDemoClient({
   }, [syncSession]);
 
   useEffect(() => {
+    if (!sessionUser) {
+      return;
+    }
+
     void loadTournaments();
-  }, [loadTournaments]);
+  }, [loadTournaments, sessionUser]);
 
   useEffect(() => {
     if (!selectedTournamentId && tournaments[0]) {
@@ -319,7 +333,7 @@ export function OrganizerDemoClient({
     try {
       await apiFetch<void>("/auth/logout", { method: "POST" });
       setSessionUser(null);
-      router.push("/login/organizer");
+      router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Logout failed.");
     }
@@ -483,6 +497,21 @@ export function OrganizerDemoClient({
     }
 
     setCurrentPage(page);
+    if (page === "tournament") {
+      router.replace("/organizer/" + encodeURIComponent(sessionUser?.orgId ?? "") + "/tournament");
+      return;
+    }
+
+    if (page === "gate-player") {
+      router.replace(
+        "/organizer/" + encodeURIComponent(sessionUser?.orgId ?? "") + "/tournament/gate"
+      );
+      return;
+    }
+
+    router.replace(
+      "/organizer/" + encodeURIComponent(sessionUser?.orgId ?? "") + "/tournament/finalize"
+    );
   }
 
   function statusClassName(status: TournamentStatus) {
@@ -496,7 +525,6 @@ export function OrganizerDemoClient({
 
     return "bg-amber-300/15 text-amber-100";
   }
-
   if (sessionLoading) {
     return (
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#164e63_0,#0f172a_45%,#020617_100%)] px-6 py-10 text-slate-50">
@@ -524,18 +552,28 @@ export function OrganizerDemoClient({
                 finalize the result.
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-right">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                Signed in
-              </p>
-              <p className="mt-1 text-sm font-semibold text-white">
-                {sessionUser?.displayName ?? "Organizer"}
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                {sessionUser?.walletAddress
-                  ? formatWallet(sessionUser.walletAddress)
-                  : "No session wallet"}
-              </p>
+            <div className="flex flex-col gap-3 m-0">
+                <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-right">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                  Signed in
+                </p>
+                <p className="mt-1 text-sm font-semibold text-white">
+                  {sessionUser?.displayName ?? "Organizer"}
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  {sessionUser?.walletAddress
+                    ? formatWallet(sessionUser.walletAddress)
+                    : "No session wallet"}
+                </p>
+              </div>
+              
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </header>

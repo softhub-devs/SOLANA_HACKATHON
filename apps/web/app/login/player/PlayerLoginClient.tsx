@@ -82,7 +82,7 @@ export function PlayerLoginClient() {
       setDisplayName(payload.user.displayName ?? "");
 
       if (payload.user.username && payload.user.displayName) {
-        router.push(`/${encodeURIComponent(payload.user.walletAddress)}/achivement`);
+        router.push(`/${encodeURIComponent(payload.user.walletAddress)}`);
       }
     } catch {
       setSessionUser(null);
@@ -163,7 +163,7 @@ export function PlayerLoginClient() {
       if (payload.needsOnboarding) {
         setSuccess("Wallet verified. Finish your profile to enter the player dashboard.");
       } else {
-        router.push(`/${encodeURIComponent(payload.user.walletAddress)}/achivement`);
+        router.push(`/player/${encodeURIComponent(payload.user.walletAddress)}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wallet authentication failed.");
@@ -183,25 +183,11 @@ export function PlayerLoginClient() {
         body: JSON.stringify({ username, displayName }),
       });
       setSessionUser(payload.user);
-      router.push(`/${encodeURIComponent(payload.user.walletAddress)}/achivement`);
+      router.push(`/player/${encodeURIComponent(payload.user.walletAddress)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Profile update failed.");
     } finally {
       setProfileSaving(false);
-    }
-  }
-
-  async function handleLogout() {
-    setError(null);
-    setSuccess(null);
-
-    try {
-      await apiFetch<void>("/auth/logout", { method: "POST" });
-      setSessionUser(null);
-      setUsername("");
-      setDisplayName("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Logout failed.");
     }
   }
 
@@ -303,13 +289,9 @@ export function PlayerLoginClient() {
                 </button>
 
                 {sessionUser ? (
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
-                  >
-                    End session
-                  </button>
+                  <p className="inline-flex items-center text-sm text-slate-300">
+                    Active session detected. Redirecting to your dashboard.
+                  </p>
                 ) : null}
               </div>
             </div>

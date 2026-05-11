@@ -4,6 +4,7 @@ export type AuthIntent = "player" | "organizer";
 
 export type SessionUser = {
   id: string;
+  orgId: string;
   walletAddress: string;
   username: string | null;
   displayName: string | null;

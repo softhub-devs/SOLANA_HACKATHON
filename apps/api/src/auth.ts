@@ -21,6 +21,7 @@ export type AuthIntent = "player" | "organizer";
 
 export type SessionUser = {
   id: string;
+  orgId: string;
   walletAddress: string;
   username: string;
   displayName: string;
@@ -145,6 +146,7 @@ function verifyWalletSignature(walletAddress: string, message: string, signature
 export function serializeUser(user: UserRecord): SessionUser {
   return {
     id: user.id,
+    orgId: user.id,
     walletAddress: user.wallet_address,
     username: user.username,
     displayName: user.display_name,
