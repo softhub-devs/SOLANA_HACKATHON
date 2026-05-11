@@ -1,47 +1,20 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { cookies } from "next/headers";
 import { Building2, ShieldCheck } from "lucide-react";
-import { apiFetch } from "@/lib/api";
-import type { SessionResponse } from "@/lib/apiTypes";
+import { readBackendSessionFromCookie } from "@/lib/serverAuth";
 
-export default function OrganizationPage() {
-  const params = useParams<{ orgId: string }>();
-  const orgId = params.orgId;
-  const [organizerName, setOrganizerName] = useState(orgId);
-  const [organizerWallet, setOrganizerWallet] = useState("");
+type Props = {
+  params: Promise<{
+    orgId: string;
+  }>;
+};
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadSession() {
-      try {
-        const session = await apiFetch<SessionResponse>("/auth/session");
-        if (!mounted) {
-          return;
-        }
-
-        setOrganizerName(
-          session.user.displayName ?? session.user.username ?? session.user.orgId ?? orgId
-        );
-        setOrganizerWallet(session.user.walletAddress ?? "");
-      } catch {
-        if (!mounted) {
-          return;
-        }
-
-        setOrganizerName(orgId);
-        setOrganizerWallet("");
-      }
-    }
-
-    void loadSession();
-
-    return () => {
-      mounted = false;
-    };
-  }, [orgId]);
+export default async function OrganizationPage({ params }: Props) {
+  const { orgId } = await params;
+  const cookieStore = await cookies();
+  const session = await readBackendSessionFromCookie(cookieStore.toString());
+  const organizerName =
+    session?.user.displayName ?? session?.user.username ?? session?.user.orgId ?? orgId;
+  const organizerWallet = session?.user.walletAddress ?? "";
 
   return (
     <div className="space-y-8">

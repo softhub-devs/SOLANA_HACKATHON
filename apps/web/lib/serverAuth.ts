@@ -20,10 +20,10 @@ export type BackendSession = {
 
 const API_BASE_URL = getApiBaseUrl();
 
-async function readBackendSession(request: NextRequest) {
+export async function readBackendSessionFromCookie(cookieHeader: string) {
   const response = await fetch(`${API_BASE_URL}/auth/session`, {
     headers: {
-      cookie: request.headers.get("cookie") ?? "",
+      cookie: cookieHeader,
     },
     cache: "no-store",
   });
@@ -38,6 +38,10 @@ async function readBackendSession(request: NextRequest) {
   }
 
   return JSON.parse(text) as BackendSession;
+}
+
+async function readBackendSession(request: NextRequest) {
+  return readBackendSessionFromCookie(request.headers.get("cookie") ?? "");
 }
 
 export async function requireAuthenticatedSession(request: NextRequest) {
