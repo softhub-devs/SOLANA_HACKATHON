@@ -43,6 +43,9 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Vary", "Origin");
+  }else{
+    res.status(403).json({ error: "CORS policy: Origin not allowed." });
+    return;
   }
 
   res.setHeader(
