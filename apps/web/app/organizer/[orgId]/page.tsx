@@ -1,39 +1,47 @@
-import { cookies } from "next/headers";
-import {
-  Building2,
-  ShieldCheck
-} from "lucide-react";
-import { API_BASE_URL } from "@/lib/api";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { Building2, ShieldCheck } from "lucide-react";
+import { apiFetch } from "@/lib/api";
 import type { SessionResponse } from "@/lib/apiTypes";
 
-type Props = {
-  params: Promise<{
-    orgId: string;
-  }>;
-};
+export default function OrganizationPage() {
+  const params = useParams<{ orgId: string }>();
+  const orgId = params.orgId;
+  const [organizerName, setOrganizerName] = useState(orgId);
+  const [organizerWallet, setOrganizerWallet] = useState("");
 
-export default async function OrganizationPage({ params }: Props) {
-  const { orgId } = await params;
-  const cookieStore = await cookies();
-  const sessionResponse = await fetch(`${API_BASE_URL}/auth/session`, {
-    headers: {
-      cookie: cookieStore.toString(),
-    },
-    cache: "no-store",
-  });
+  useEffect(() => {
+    let mounted = true;
 
-  let organizerName = orgId;
-  let organizerWallet = "";
-  if (sessionResponse.ok) {
-    const session = (await sessionResponse.json()) as SessionResponse;
-    organizerName =
-      session.user.displayName ??
-      session.user.username ??
-      session.user.orgId ??
-      orgId;
-    organizerWallet = session.user.walletAddress;
-  }
+    async function loadSession() {
+      try {
+        const session = await apiFetch<SessionResponse>("/auth/session");
+        if (!mounted) {
+          return;
+        }
 
+        setOrganizerName(
+          session.user.displayName ?? session.user.username ?? session.user.orgId ?? orgId
+        );
+        setOrganizerWallet(session.user.walletAddress ?? "");
+      } catch {
+        if (!mounted) {
+          return;
+        }
+
+        setOrganizerName(orgId);
+        setOrganizerWallet("");
+      }
+    }
+
+    void loadSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [orgId]);
 
   return (
     <div className="space-y-8">
@@ -42,6 +50,7 @@ export default async function OrganizationPage({ params }: Props) {
           <div className="max-w-3xl">
             <div className="flex items-center gap-5">
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-cyan-300/20 bg-cyan-400/10">
+                <Building2 className="h-9 w-9 text-cyan-300" />
               </div>
 
               <div>
@@ -51,9 +60,11 @@ export default async function OrganizationPage({ params }: Props) {
                 <h1 className="mt-2 text-3xl font-semibold text-white">
                   {organizerName}
                 </h1>
+                {organizerWallet ? (
                   <p className="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
                     {organizerWallet}
                   </p>
+                ) : null}
                 <p className="mt-3 text-sm leading-6 text-slate-300">
                   Manage tournaments, verify players, and issue trusted credentials
                   from one organizer workspace.
@@ -68,7 +79,6 @@ export default async function OrganizationPage({ params }: Props) {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
