@@ -39,11 +39,16 @@ const app = express();
 app.use(express.json());
 app.use((req, res, next) => {
   const origin = req.get("origin");
-  if (origin && origin === env.webOrigin) {
+  if (!origin) {
+    next();
+    return;
+  }
+
+  if (origin === env.webOrigin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader("Vary", "Origin");
-  }else{
+  } else {
     res.status(403).json({ error: "CORS policy: Origin not allowed." });
     return;
   }

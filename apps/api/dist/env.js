@@ -55,9 +55,9 @@ exports.env = {
     secureCookies: process.env.NODE_ENV === "production",
     supabaseUrl: optionalEnv("SUPABASE_URL"),
     supabaseServiceRoleKey: optionalEnv("SUPABASE_SERVICE_ROLE_KEY"),
-    adminUsername: process.env.ADMIN_USERNAME?.trim().toLowerCase() || "admin",
-    adminPassword: process.env.ADMIN_PASSWORD?.trim() || "changeme123",
-    adminDisplayName: process.env.ADMIN_DISPLAY_NAME?.trim() || "GameChain Admin",
+    adminUsername: process.env.ADMIN_USERNAME?.trim().toLowerCase(),
+    adminPassword: process.env.ADMIN_PASSWORD?.trim(),
+    adminDisplayName: process.env.ADMIN_DISPLAY_NAME?.trim(),
 };
 function hasSupabaseConfig() {
     return Boolean(exports.env.supabaseUrl && exports.env.supabaseServiceRoleKey);

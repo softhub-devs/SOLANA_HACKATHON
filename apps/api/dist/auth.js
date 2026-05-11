@@ -156,39 +156,45 @@ async function createSessionForUser(user) {
     };
 }
 async function ensureAdminUser() {
-    const passwordHash = createPasswordHash(env_1.env.adminPassword);
+    const adminUsername = env_1.env.adminUsername;
+    const adminPassword = env_1.env.adminPassword;
+    const adminDisplayName = env_1.env.adminDisplayName;
+    if (!adminUsername || !adminPassword || !adminDisplayName) {
+        throw new Error("Admin username, password, and display name are required.");
+    }
+    const passwordHash = createPasswordHash(adminPassword);
     const existingAdminByWallet = await exports.storage.findUserByWallet(HARDCODED_ADMIN_WALLET);
     if (existingAdminByWallet) {
         if (existingAdminByWallet.role === "admin" &&
             existingAdminByWallet.organizer_status === "approved" &&
-            existingAdminByWallet.username === env_1.env.adminUsername &&
-            existingAdminByWallet.display_name === env_1.env.adminDisplayName &&
+            existingAdminByWallet.username === adminUsername &&
+            existingAdminByWallet.display_name === adminDisplayName &&
             existingAdminByWallet.password_hash &&
-            verifyPasswordHash(env_1.env.adminPassword, existingAdminByWallet.password_hash)) {
+            verifyPasswordHash(adminPassword, existingAdminByWallet.password_hash)) {
             return existingAdminByWallet;
         }
         return exports.storage.updateUserProfile(existingAdminByWallet.id, {
-            username: env_1.env.adminUsername,
+            username: adminUsername,
             password_hash: passwordHash,
-            display_name: env_1.env.adminDisplayName,
+            display_name: adminDisplayName,
             role: "admin",
             organizer_status: "approved",
         });
     }
-    const existingAdminByUsername = await exports.storage.findUserByUsername(env_1.env.adminUsername);
+    const existingAdminByUsername = await exports.storage.findUserByUsername(adminUsername);
     if (existingAdminByUsername) {
         return exports.storage.updateUserProfile(existingAdminByUsername.id, {
             password_hash: passwordHash,
-            display_name: env_1.env.adminDisplayName,
+            display_name: adminDisplayName,
             role: "admin",
             organizer_status: "approved",
         });
     }
     return exports.storage.createUser({
         wallet_address: HARDCODED_ADMIN_WALLET,
-        username: env_1.env.adminUsername,
+        username: adminUsername,
         password_hash: passwordHash,
-        display_name: env_1.env.adminDisplayName,
+        display_name: adminDisplayName,
         role: "admin",
         organizer_status: "approved",
     });
@@ -212,9 +218,9 @@ async function verifyChallengeAndCreateSession(input) {
             isNewUser = true;
             user = await exports.storage.createUser({
                 wallet_address: input.walletAddress,
-                username: null,
-                password_hash: null,
-                display_name: null,
+                username: "",
+                password_hash: "",
+                display_name: "",
                 role: "admin",
                 organizer_status: "approved",
             });
@@ -226,9 +232,9 @@ async function verifyChallengeAndCreateSession(input) {
             isNewUser = true;
             user = await exports.storage.createUser({
                 wallet_address: input.walletAddress,
-                username: null,
-                password_hash: null,
-                display_name: null,
+                username: "",
+                password_hash: "",
+                display_name: "",
                 role: "player",
                 organizer_status: "none",
             });

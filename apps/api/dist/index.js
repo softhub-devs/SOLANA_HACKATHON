@@ -11,10 +11,18 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((req, res, next) => {
     const origin = req.get("origin");
-    if (origin && origin === env_1.env.webOrigin) {
+    if (!origin) {
+        next();
+        return;
+    }
+    if (origin === env_1.env.webOrigin) {
         res.setHeader("Access-Control-Allow-Origin", origin);
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.setHeader("Vary", "Origin");
+    }
+    else {
+        res.status(403).json({ error: "CORS policy: Origin not allowed." });
+        return;
     }
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PATCH,OPTIONS");

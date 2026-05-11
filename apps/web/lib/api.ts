@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:4000";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
+
+const API_BASE_URL = getApiBaseUrl();
 
 export async function apiFetch<T>(
   path: string,

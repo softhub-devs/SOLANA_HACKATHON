@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 export type BackendSessionUser = {
   id: string;
@@ -16,8 +17,7 @@ export type BackendSession = {
   };
 };
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:4000";
+const API_BASE_URL = getApiBaseUrl();
 
 async function readBackendSession(request: NextRequest) {
   const response = await fetch(`${API_BASE_URL}/auth/session`, {
