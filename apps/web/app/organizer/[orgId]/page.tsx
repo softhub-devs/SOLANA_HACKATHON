@@ -42,7 +42,6 @@ export default async function OrganizationPage({ params }: Props) {
           <div className="max-w-3xl">
             <div className="flex items-center gap-5">
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-cyan-300/20 bg-cyan-400/10">
-                <Building2 className="h-9 w-9 text-cyan-300" />
               </div>
 
               <div>
