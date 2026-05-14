@@ -1,12 +1,8 @@
-import { getApiBaseUrl } from "@/lib/apiBaseUrl";
-
-const API_BASE_URL = getApiBaseUrl();
-
 export async function apiFetch<T>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(path, {
     ...init,
     credentials: "include",
     headers: {
@@ -30,5 +26,3 @@ export async function apiFetch<T>(
 
   return payload;
 }
-
-export { API_BASE_URL };

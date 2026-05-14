@@ -1320,9 +1320,6 @@ export async function finalizeTournament(tournamentId: string, winnerWallet: str
   }
 
   const normalizedWinnerWallet = normalizeWallet(winnerWallet);
-  if (!record.registrations.some((entry) => walletKey(entry.wallet) === walletKey(normalizedWinnerWallet))) {
-    return { error: "Winner must be a registered player." };
-  }
 
   const nextTournament = {
     ...record,

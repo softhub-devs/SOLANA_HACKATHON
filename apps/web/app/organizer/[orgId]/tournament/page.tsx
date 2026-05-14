@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Clock3, Plus, Trophy, Users } from "lucide-react";
@@ -133,14 +132,23 @@ export default function TournamentPage() {
       if (sessionUser) {
         await loadTournaments(sessionUser);
       }
-      router.push(
-        `/organizer/${encodeURIComponent(orgId)}/tournament/gate?tournamentId=${encodeURIComponent(tournament.id)}`
-      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create tournament.");
     } finally {
       setCreateLoading(false);
     }
+  }
+
+  function goToFinalize(tournamentId: string) {
+    router.push(
+      `/organizer/${encodeURIComponent(orgId)}/tournament/finalize?tournamentId=${encodeURIComponent(tournamentId)}`
+    );
+  }
+
+  function goToGate(tournamentId: string) {
+    router.push(
+      `/organizer/${encodeURIComponent(orgId)}/tournament/gate?tournamentId=${encodeURIComponent(tournamentId)}`
+    );
   }
 
   const stats = useMemo(() => {
@@ -184,8 +192,8 @@ export default function TournamentPage() {
           </p>
           <h1 className="mt-2 text-3xl font-semibold">Tournaments</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            Create events, review organizer-owned tournaments, and jump directly
-            into gate or finalize workflows backed by stored data.
+            Create events, review organizer-owned tournaments, and finalize
+            outcomes directly from stored tournament records.
           </p>
         </div>
       </div>
@@ -295,14 +303,14 @@ export default function TournamentPage() {
           </div>
 
           <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/50">
-            <div className="border-b border-white/10 px-6 py-5">
-              <h2 className="text-lg font-semibold">Your tournaments</h2>
+            <div className="border-b border-white/10 px-0 py-5">
+              <h2 className="text-lg mx-4 font-semibold">Your tournaments</h2>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px]">
+            <div className="max-h-[20rem] overflow-y-auto ">
+              <table className="w-full px-0 mx-0">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-sm text-slate-400">
+                  <tr className="sticky top-0 z-10 border-b border-white/10 bg-slate-900/95 text-left text-sm text-slate-400 backdrop-blur">
                     <th className="px-6 py-4 font-medium">Tournament</th>
                     <th className="px-6 py-4 font-medium">Status</th>
                     <th className="px-6 py-4 font-medium">Players</th>
@@ -313,7 +321,7 @@ export default function TournamentPage() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td className="px-6 py-5 text-sm text-slate-400" colSpan={4}>
+                      <td className="px-0 py-5 text-sm text-slate-400" colSpan={4}>
                         Loading tournaments...
                       </td>
                     </tr>
@@ -323,7 +331,7 @@ export default function TournamentPage() {
                         key={tournament.id}
                         className="border-b border-white/5 transition hover:bg-white/[0.03]"
                       >
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-2">
                           <div className="flex items-center gap-3">
                             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10">
                               <Trophy className="h-5 w-5 text-cyan-300" />
@@ -352,19 +360,25 @@ export default function TournamentPage() {
 
                         <td className="px-6 py-5">
                           <div className="flex gap-2">
-                            <Link
-                              href={`/organizer/${encodeURIComponent(orgId)}/tournament/gate?tournamentId=${encodeURIComponent(tournament.id)}`}
+                            <button
+                              type="button"
+                              onClick={() => goToGate(tournament.id)}
                               className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
                             >
-                              Gate Players
-                            </Link>
+                              Gate Player
+                            </button>
 
-                            <Link
-                              href={`/organizer/${encodeURIComponent(orgId)}/tournament/finalize?tournamentId=${encodeURIComponent(tournament.id)}`}
-                              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                            <button
+                              type="button"
+                              onClick={() => goToFinalize(tournament.id)}
+                              className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                                tournament.status === "completed"
+                                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
+                                  : "border-white/10 bg-white/5 text-white hover:bg-white/10"
+                              }`}
                             >
-                              Finalize
-                            </Link>
+                              {tournament.status === "completed" ? "Completed" : "Finalize"}
+                            </button>
                           </div>
                         </td>
                       </tr>

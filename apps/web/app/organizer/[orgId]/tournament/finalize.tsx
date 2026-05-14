@@ -221,7 +221,7 @@ export default function FinalizeTournamentPage() {
               {selectedTournament?.name ?? "Select a tournament"}
             </h1>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              Choose a registered player and write the winner to the tournament record.
+              Enter the winner wallet and lock the tournament as completed.
             </p>
           </div>
 
@@ -254,7 +254,17 @@ export default function FinalizeTournamentPage() {
       </div>
 
       <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6">
-        <h2 className="text-xl font-semibold">Select Winner</h2>
+        <h2 className="text-xl font-semibold">Finalize Winner</h2>
+
+        <label className="mt-6 block text-sm font-medium text-slate-300">
+          Winner wallet
+          <input
+            value={winnerWallet}
+            onChange={(event) => setWinnerWallet(event.target.value)}
+            placeholder="Enter winner wallet..."
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-400"
+          />
+        </label>
 
         <div className="mt-6 space-y-3">
           {loading ? (
@@ -262,38 +272,44 @@ export default function FinalizeTournamentPage() {
               Loading tournament details...
             </div>
           ) : selectedTournament?.registrations.length ? (
-            selectedTournament.registrations.map((registration) => {
-              const selected = winnerWallet === registration.wallet;
+            <>
+              <p className="text-sm text-slate-400">
+                Registered players are still available for quick selection.
+              </p>
+              {selectedTournament.registrations.map((registration) => {
+                const selected = winnerWallet === registration.wallet;
 
-              return (
-                <button
-                  key={registration.wallet}
-                  type="button"
-                  onClick={() => setWinnerWallet(registration.wallet)}
-                  className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition ${
-                    selected
-                      ? "border-cyan-400 bg-cyan-400/10"
-                      : "border-white/10 bg-slate-950/50 hover:border-cyan-400"
-                  }`}
-                >
-                  <div>
-                    <p className="font-medium text-white">
-                      {registration.wallet}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Registered competitor
-                    </p>
-                  </div>
+                return (
+                  <button
+                    key={registration.wallet}
+                    type="button"
+                    onClick={() => setWinnerWallet(registration.wallet)}
+                    className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left transition ${
+                      selected
+                        ? "border-cyan-400 bg-cyan-400/10"
+                        : "border-white/10 bg-slate-950/50 hover:border-cyan-400"
+                    }`}
+                  >
+                    <div>
+                      <p className="font-medium text-white">
+                        {registration.wallet}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Registered competitor
+                      </p>
+                    </div>
 
-                  <div className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">
-                    {selected ? "Selected" : "Select"}
-                  </div>
-                </button>
-              );
-            })
+                    <div className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-300">
+                      {selected ? "Selected" : "Select"}
+                    </div>
+                  </button>
+                );
+              })}
+            </>
           ) : (
             <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 px-5 py-4 text-sm text-slate-400">
-              No registered players yet. Use the gate page first.
+              No registered players found. You can still finalize by entering the
+              winner wallet manually.
             </div>
           )}
         </div>
@@ -305,8 +321,7 @@ export default function FinalizeTournamentPage() {
             actionLoading ||
             !selectedTournamentId ||
             !winnerWallet.trim() ||
-            !selectedTournament?.registrations.length ||
-            selectedTournament.status === "completed"
+            selectedTournament?.status === "completed"
           }
           className="mt-6 w-full rounded-2xl bg-emerald-400 px-4 py-4 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
